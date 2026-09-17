@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chat Vocal - AlloArtisan</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+body{font-family:Arial;padding:15px;background:#f5f5f5;margin:0}
+.card{background:white;padding:15px;border-radius:12px;margin-bottom:10px;box-shadow:0 2px 5px #0001}
+button{padding:14px 20px;border-radius:30px;border:none;font-weight:bold;cursor:pointer}
+#recordBtn{background:#e11d48;color:white;width:100%;font-size:18px}
+#recordBtn.recording{background:#22c55e;animation:pulse 1s infinite}
+audio{width:100%;margin-top:8px}
+@keyframes pulse{0%{opacity:1} 50%{opacity:.6} 100%{opacity:1}}
+.vocal-item{border-left:4px solid #16a34a;padding:10px;background:#f9fff9;border-radius:8px;margin:10px 0}
+#status{text-align:center;font-weight:bold}
+</style>
+</head>
+<body>
+<h2 style="text-align:center">🎤 Chat Vocal AlloArtisan</h2>
+<div class="card">
+<p id="status">Prêt à enregistrer</p>
+<button id="recordBtn">🎤 Appuie pour parler</button>
+</div>
+<h3>📋 Vocaux reçus</h3>
+<div id="liste" class="card">Chargement...</div>
+
+<script>
+const SUPABASE_URL = 'https://julsebvxtclkrxbebjhj.supabase.co'
+const SUPABASE_KEY = 'sb_publishable_yYGYMPrtpEk845HMjxAUgg_X46trA9W'
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+
+let mediaRecorder, chunks = [], isRecording = false;
+const btn = document.getElementById('recordBtn')
+const status = document.getElementById('status')
+
+btn.onclick = async () => {
+  if(!isRecording){
+    try{
+      const stream = await navigator.mediaDevices.getUserMedia({audio:true})
+      mediaRecorder = new MediaRecorder(stream)
+      chunks = []
+      mediaRecorder.ondataavailable = e => chunks.push(e.data)
+      mediaRecorder.onstop = uploadVocal
+      mediaRecorder.start()
+      isRecording = true
+      btn.textContent = '⏹️ Arrête pour envoyer'
+      btn.classList.add('recording')
+      status.textContent = '🔴 Enregistrement en cours...'
+    }catch(e){ alert("Active le micro dans ton navigateur"); }
+  } else {
+    mediaRecorder.stop()
+    isRecording = false
+    btn.textContent = '🎤 Appuie pour parler'
+    btn.classList.remove('recording')
+    status.textContent = 'Envoi en cours...'
+  }
+}
+
+async function uploadVocal(){
+  const blob = new Blob(chunks, {type:'audio/webm'})
+  const nom = 'vocal-' + Date.now() + '.webm'
+  const {error} = await supabase.storage.from('VOCAUX').upload(nom, blob)
+  if(error){
+    status.textContent = '❌ ' + error.message
+    alert(error.message)
+  } else {
+    status.textContent = '✅ Vocal envoyé !'
+    chargerVocaux()
+  }
+}
+
+async function chargerVocaux(){
+  const {data, error} = await supabase.storage.from('VOCAUX').list('', {limit:100, sortBy:{column:'created_at', order:'desc'}})
+  const liste = document.getElementById('liste')
+  if(error){ liste.innerHTML = error.message; return }
+  if(!data || !data.length){ liste.innerHTML = 'Aucun vocal. Sois le premier !'; return }
+  liste.innerHTML = ''
+  for(const f of data){
+    if(f.name === '.emptyFolderPlaceholder') continue
+    const {data: urlData} = supabase.storage.from('VOCAUX').getPublicUrl(f.name)
+    const div = document.createElement('div')
+    div.className = 'vocal-item'
+    div.innerHTML = `<b>🎙️ ${f.name}</b><br><audio controls src="${urlData.publicUrl}"></audio><br><small>${new Date(f.created_at).toLocaleString()}</small>`
+    liste.appendChild(div)
+  }
+}
+chargerVocaux()
+</script>
+</body>
+</html>
