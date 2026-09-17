@@ -1,0 +1,17 @@
+{
+  "name": "AlloArtisan.bj - Artisans à Cotonou",
+  "short_name": "AlloArtisan",
+  "description": "Trouvez un artisan vérifié à Cotonou & Calavi en 2 minutes",
+  "start_url": "/-Alloartisan-bj/",
+  "display": "standalone",
+  "background_color": "#0f7a3a",
+  "theme_color": "#0f7a3a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/1995/1995515.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
