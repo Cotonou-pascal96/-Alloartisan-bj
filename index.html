@@ -15,8 +15,7 @@ header{background:#16a34a;color:white;padding:20px;text-align:center}
 #vocalBox{background:white;width:100%;max-width:400px;border-radius:15px;padding:20px;text-align:center}
 input,select{width:100%;padding:12px;margin:6px 0;border:1px solid #ddd;border-radius:8px;box-sizing:border-box}
 #recordBtn{background:#e11d48;color:white;width:100%;padding:16px;border:none;border-radius:30px;font-size:18px;font-weight:bold;margin-top:10px}
-#recordBtn.recording{background:#22c55e;animation:pulse 1s infinite}
-@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.03)}100%{transform:scale(1)}}
+#recordBtn.recording{background:#22c55e}
 .vocal-item{border-left:4px solid #16a34a;padding:12px;background:#f0fdf4;border-radius:10px;margin:10px 0;text-align:left}
 audio{width:100%;margin-top:5px}
 .wa-btn{display:inline-block;background:#25D366;color:white;padding:8px 12px;border-radius:20px;text-decoration:none;font-size:14px;margin-top:6px;font-weight:bold}
@@ -53,7 +52,7 @@ audio{width:100%;margin-top:5px}
 <div id="vocalBox">
 <h3>🎤 Ta demande</h3>
 <input id="nom" placeholder="Ton nom (ex: Pascal)">
-<input id="tel" placeholder="Ton numéro WhatsApp (ex: 01 23...)">
+<input id="tel" placeholder="Ton numéro WhatsApp">
 <select id="metier">
 <option value="">Choisis métier</option>
 <option>Électricien</option>
@@ -72,20 +71,15 @@ audio{width:100%;margin-top:5px}
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 const supabase = createClient('https://julsebvxtclkrxbebjhj.supabase.co','sb_publishable_yYGYMPrtpEk845HMjxAUgg_X46trA9W')
 const BUCKET = 'Vocaux'
-
 const modal = document.getElementById('vocalModal')
 document.getElementById('vocalBtn').onclick = ()=>{ modal.style.display='flex' }
 modal.onclick = (e)=>{ if(e.target==modal) modal.style.display='none' }
-
 let rec, chunks=[], recording=false
 const btn = document.getElementById('recordBtn')
 const status = document.getElementById('status')
 const liste = document.getElementById('liste')
-
 btn.onclick = async ()=>{
- if(!document.getElementById('nom').value || !document.getElementById('tel').value){
-   alert('Mets ton nom et ton numéro d\'abord'); return
- }
+ if(!document.getElementById('nom').value || !document.getElementById('tel').value){ alert('Mets ton nom et ton numéro d\'abord'); return }
  if(!recording){
    const stream = await navigator.mediaDevices.getUserMedia({audio:true})
    rec = new MediaRecorder(stream)
@@ -105,24 +99,16 @@ btn.onclick = async ()=>{
    status.textContent='Envoi...'
  }
 }
-
 async function upload(){
  const blob = new Blob(chunks,{type:'audio/webm'})
  const nom = document.getElementById('nom').value
  const tel = document.getElementById('tel').value
- const metier = document.getElementById('metier').value
+ const metier = document.getElementById('metier').value || 'Artisan'
  const fileName = `${metier}-${nom}-${Date.now()}.webm`
  const {error} = await supabase.storage.from(BUCKET).upload(fileName, blob)
  if(error){ status.textContent='❌ '+error.message }
- else{
-   // Sauve aussi dans table si existe
-   try{ await supabase.from('demandes').insert([{nom:nom, telephone:tel, metier:metier, vocal:fileName}]) }catch(e){}
-   status.textContent='✅ Envoyé! L\'artisan va te contacter';
-   charger();
-   setTimeout(()=>{modal.style.display='none'; status.textContent='Prêt'},1500)
- }
+ else{ status.textContent='✅ Envoyé!'; charger(); setTimeout(()=>{modal.style.display='none'; status.textContent='Prêt à enregistrer'},1500) }
 }
-
 async function charger(){
  const {data} = await supabase.storage.from(BUCKET).list('', {limit:30, sortBy:{column:'created_at', order:'desc'}})
  if(!data || data.length==0){ liste.innerHTML='Aucune demande'; return }
@@ -130,12 +116,9 @@ async function charger(){
  for(const f of data){
    if(f.name.includes('empty') || f.name=='.emptyFolderPlaceholder') continue
    const {data:u} = supabase.storage.from(BUCKET).getPublicUrl(f.name)
-   const parts = f.name.split('-')
-   const displayName = parts[1] || 'Client'
-   const metier = parts[0] || 'Artisan'
    const d = document.createElement('div')
    d.className='vocal-item'
-   d.innerHTML=`<b>🔧 ${metier} - ${displayName}</b><br><small>${f.name}</small><br><audio controls src="${u.publicUrl}"></audio><br><a class="wa-btn" href="https://wa.me/2290196990558?text=Bonjour%20${displayName}%20je%20viens%20pour%20ta%20demande%20${f.name}" target="_blank">💬 Répondre sur WhatsApp</a>`
+   d.innerHTML=`<b>🔧 ${f.name}</b><br><audio controls src="${u.publicUrl}"></audio><br><a class="wa-btn" href="https://wa.me/2290196990558?text=Bonjour%20je%20viens%20pour%20${f.name}" target="_blank">💬 Répondre sur WhatsApp</a>`
    liste.appendChild(d)
  }
 }
