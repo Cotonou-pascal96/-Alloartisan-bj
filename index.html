@@ -3,55 +3,122 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AlloArtisan.bj - Artisans à Cotonou</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0f7a3a">
-<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1995/1995515.png">
+<title>AlloArtisan BJ - Trouve un artisan en 2 min</title>
+<style>
+body{font-family:Arial, sans-serif;margin:0;background:#f8fafc}
+header{background:#16a34a;color:white;padding:15px;text-align:center}
+.hero{padding:20px;text-align:center;background:white}
+.services{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:15px}
+.service-card{background:white;padding:15px;border-radius:12px;text-align:center;box-shadow:0 2px 5px #0001}
+.service-card span{font-size:30px}
+#vocalBtn{position:fixed;bottom:20px;right:20px;background:#e11d48;color:white;padding:16px 22px;border-radius:50px;text-decoration:none;font-weight:bold;box-shadow:0 5px 15px #0004;z-index:9999;border:none;font-size:16px;cursor:pointer}
+#vocalModal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:10000;justify-content:center;align-items:center;padding:15px}
+#vocalBox{background:white;width:100%;max-width:400px;border-radius:15px;padding:20px}
+#recordBtn{background:#e11d48;color:white;width:100%;padding:15px;border:none;border-radius:30px;font-size:18px;font-weight:bold;cursor:pointer}
+#recordBtn.recording{background:#22c55e;animation:pulse 1s infinite}
+@keyframes pulse{0%{opacity:1}50%{opacity:.6}100%{opacity:1}}
+.vocal-item{border-left:4px solid #16a34a;padding:8px;background:#f0fdf4;border-radius:8px;margin-top:10px}
+audio{width:100%;margin-top:5px}
+</style>
 </head>
-<body class="bg-gray-50">
-<div class="max-w-4xl mx-auto p-4">
+<body>
+<header>
+<h2>🔧 AlloArtisan BJ</h2>
+<p>Trouve un artisan fiable au Bénin en 2 minutes</p>
+</header>
 
-<h1 class="text-3xl font-bold text-center text-green-800 mt-4">AlloArtisan.bj</h1>
-<p class="text-center text-gray-600 mt-2">Trouvez un artisan vérifié à Cotonou & Calavi en 2 minutes</p>
-
-<div class="grid grid-cols-2 gap-4 mt-8">
-  <a href="https://wa.me/2290194306313?text=Bonjour%20je%20cherche%20un%20plombier" class="bg-white p-4 rounded-xl shadow text-center">🔧 Plombier</a>
-  <a href="https://wa.me/2290194306313?text=Bonjour%20je%20cherche%20un%20électricien" class="bg-white p-4 rounded-xl shadow text-center">⚡ Électricien</a>
-  <a href="https://wa.me/2290194306313?text=Bonjour%20je%20cherche%20un%20menuisier" class="bg-white p-4 rounded-xl shadow text-center">🪚 Menuisier</a>
-  <a href="https://wa.me/2290194306313?text=Bonjour%20je%20cherche%20un%20maçon" class="bg-white p-4 rounded-xl shadow text-center">🧱 Maçon</a>
-  <a href="https://wa.me/2290194306313?text=Bonjour%20je%20cherche%20un%20peintre" class="bg-white p-4 rounded-xl shadow text-center">🎨 Peintre</a>
-  <a href="https://wa.me/2290194306313?text=Bonjour%20je%20cherche%20climatisation" class="bg-white p-4 rounded-xl shadow text-center">❄️ Clim</a>
+<div class="hero">
+<h3>Quel artisan tu cherches ?</h3>
+<p>Clique et envoie un vocal direct</p>
 </div>
 
-<div class="mt-8 bg-green-700 text-white p-6 rounded-xl text-center">
-  <h2 class="font-bold text-xl">Besoin d'un artisan maintenant ?</h2>
-  <a href="https://wa.me/2290194306313" class="inline-block mt-4 bg-yellow-400 text-black font-bold py-3 px-6 rounded-full">📲 Contactez-nous sur WhatsApp</a>
-  <p class="mt-2 text-sm">01 94 30 63 13 - Service gratuit</p>
+<div class="services">
+<div class="service-card"><span>💡</span><br>Électricien</div>
+<div class="service-card"><span>🚿</span><br>Plombier</div>
+<div class="service-card"><span>🧱</span><br>Maçon</div>
+<div class="service-card"><span>🎨</span><br>Peintre</div>
 </div>
 
-<div class="mt-8 bg-white p-4 rounded-xl shadow">
-  <h3 class="font-bold">Vous êtes artisan ?</h3>
-  <p class="text-sm text-gray-600 mt-1">Rejoignez les 20 premiers gratuitement et recevez des clients.</p>
-  <a href="https://wa.me/2290194306313?text=Bonjour%20je%20suis%20artisan%20et%20je%20veux%20m'inscrire" class="inline-block mt-3 bg-green-700 text-white py-2 px-4 rounded">S'inscrire comme artisan</a>
+<div style="padding:15px">
+<div style="background:white;padding:15px;border-radius:12px">
+<h3>🎤 Derniers vocaux clients</h3>
+<div id="liste">Chargement...</div>
+</div>
 </div>
 
+<!-- BOUTON FLOTTANT -->
+<button id="vocalBtn">🎤 Envoyer un vocal</button>
+
+<!-- MODAL VOCAL -->
+<div id="vocalModal">
+<div id="vocalBox">
+<h3 style="text-align:center">🎤 Envoie ton besoin</h3>
+<p id="status" style="text-align:center;font-weight:bold">Prêt</p>
+<button id="recordBtn">🎤 Appuie pour parler</button>
+<br><br>
+<button onclick="document.getElementById('vocalModal').style.display='none'" style="width:100%;padding:10px;border:none;background:#eee;border-radius:20px">Fermer</button>
+</div>
 </div>
 
-<script>
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js');
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+const SUPABASE_URL = 'https://julsebvxtclkrxbebjhj.supabase.co'
+const SUPABASE_KEY = 'sb_publishable_yYGYMPrtpEk845HMjxAUgg_X46trA9W'
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+const BUCKET = 'Vocaux'
+
+const modal = document.getElementById('vocalModal')
+document.getElementById('vocalBtn').onclick = ()=> modal.style.display='flex'
+modal.onclick = (e)=>{ if(e.target==modal) modal.style.display='none' }
+
+let mediaRecorder, chunks=[], isRecording=false
+const btn = document.getElementById('recordBtn')
+const status = document.getElementById('status')
+const liste = document.getElementById('liste')
+
+btn.onclick = async ()=>{
+  if(!isRecording){
+    const stream = await navigator.mediaDevices.getUserMedia({audio:true})
+    mediaRecorder = new MediaRecorder(stream)
+    chunks=[]
+    mediaRecorder.ondataavailable = e=>chunks.push(e.data)
+    mediaRecorder.onstop = uploadVocal
+    mediaRecorder.start()
+    isRecording=true
+    btn.textContent='⏹️ Arrête pour envoyer'
+    btn.classList.add('recording')
+    status.textContent='🔴 Enregistrement...'
+  }else{
+    mediaRecorder.stop()
+    isRecording=false
+    btn.textContent='🎤 Appuie pour parler'
+    btn.classList.remove('recording')
+    status.textContent='Envoi...'
+  }
 }
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  let btn = document.createElement('button');
-  btn.innerText = '📲 Installer AlloArtisan';
-  btn.style = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#ffcc00;color:#000;padding:14px 22px;border-radius:30px;font-weight:bold;z-index:9999;border:none;box-shadow:0 4px 10px rgba(0,0,0,0.3)';
-  document.body.appendChild(btn);
-  btn.onclick = () => { deferredPrompt.prompt(); };
-});
+
+async function uploadVocal(){
+  const blob = new Blob(chunks,{type:'audio/webm'})
+  const nom = 'vocal-'+Date.now()+'.webm'
+  const {error} = await supabase.storage.from(BUCKET).upload(nom, blob)
+  if(error){ status.textContent='❌ '+error.message }
+  else{ status.textContent='✅ Vocal envoyé! Bravo!'; setTimeout(()=>{modal.style.display='none'; status.textContent='Prêt'},1500); chargerVocaux() }
+}
+
+async function chargerVocaux(){
+  const {data} = await supabase.storage.from(BUCKET).list('', {limit:20, sortBy:{column:'created_at', order:'desc'}})
+  if(!data || data.length==0){ liste.innerHTML='Aucun vocal. Sois le premier!'; return }
+  liste.innerHTML=''
+  for(const f of data){
+    if(f.name.includes('empty')) continue
+    const {data:urlData} = supabase.storage.from(BUCKET).getPublicUrl(f.name)
+    const div = document.createElement('div')
+    div.className='vocal-item'
+    div.innerHTML=`🎙️ ${f.name}<br><audio controls src="${urlData.publicUrl}"></audio>`
+    liste.appendChild(div)
+  }
+}
+chargerVocaux()
 </script>
 </body>
 </html>
