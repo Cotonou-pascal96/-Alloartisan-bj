@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -13,7 +13,7 @@ button{padding:14px 20px;border-radius:30px;border:none;font-weight:bold;cursor:
 audio{width:100%;margin-top:8px}
 @keyframes pulse{0%{opacity:1} 50%{opacity:.6} 100%{opacity:1}}
 .vocal-item{border-left:4px solid #16a34a;padding:10px;background:#f9fff9;border-radius:8px;margin:10px 0}
-#status{text-align:center;font-weight:bold;color:#333}
+#status{text-align:center;font-weight:bold}
 </style>
 </head>
 <body>
@@ -27,10 +27,10 @@ audio{width:100%;margin-top:8px}
 
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
-
 const SUPABASE_URL = 'https://julsebvxtclkrxbebjhj.supabase.co'
 const SUPABASE_KEY = 'sb_publishable_yYGYMPrtpEk845HMjxAUgg_X46trA9W'
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+const BUCKET = 'Vocaux'
 
 let mediaRecorder, chunks = [], isRecording = false;
 const btn = document.getElementById('recordBtn')
@@ -39,21 +39,16 @@ const liste = document.getElementById('liste')
 
 btn.onclick = async () => {
   if(!isRecording){
-    try{
-      const stream = await navigator.mediaDevices.getUserMedia({audio:true})
-      mediaRecorder = new MediaRecorder(stream)
-      chunks = []
-      mediaRecorder.ondataavailable = e => chunks.push(e.data)
-      mediaRecorder.onstop = uploadVocal
-      mediaRecorder.start()
-      isRecording = true
-      btn.textContent = '⏹️ Arrête pour envoyer'
-      btn.classList.add('recording')
-      status.textContent = '🔴 Enregistrement...'
-    }catch(e){
-      alert("Active le micro!");
-      status.textContent = "❌ Micro bloqué - autorise dans Chrome"
-    }
+    const stream = await navigator.mediaDevices.getUserMedia({audio:true})
+    mediaRecorder = new MediaRecorder(stream)
+    chunks = []
+    mediaRecorder.ondataavailable = e => chunks.push(e.data)
+    mediaRecorder.onstop = uploadVocal
+    mediaRecorder.start()
+    isRecording = true
+    btn.textContent = '⏹️ Arrête pour envoyer'
+    btn.classList.add('recording')
+    status.textContent = '🔴 Enregistrement...'
   } else {
     mediaRecorder.stop()
     isRecording = false
@@ -66,46 +61,31 @@ btn.onclick = async () => {
 async function uploadVocal(){
   const blob = new Blob(chunks, {type:'audio/webm'})
   const nom = 'vocal-' + Date.now() + '.webm'
-  status.textContent = 'Upload vers VOCAUX...'
-
-  const {data, error} = await supabase.storage.from('VOCAUX').upload(nom, blob, {contentType:'audio/webm'})
-
+  const {error} = await supabase.storage.from(BUCKET).upload(nom, blob)
   if(error){
     status.textContent = '❌ ' + error.message
-    alert("Erreur upload: " + error.message)
-    console.log(error)
+    alert('Erreur upload: ' + error.message)
   } else {
-    status.textContent = '✅ Vocal envoyé! Bravo!'
-    setTimeout(()=>{ status.textContent = 'Prêt à enregistrer' }, 2000)
+    status.textContent = '✅ Vocal envoyé!'
     chargerVocaux()
   }
 }
 
 async function chargerVocaux(){
-  liste.innerHTML = 'Chargement...'
-  const {data, error} = await supabase.storage.from('VOCAUX').list('', {limit:50, sortBy:{column:'created_at', order:'desc'}})
-
-  if(error){
-    liste.innerHTML = 'Erreur: ' + error.message + '<br>Mais tu peux quand même enregistrer!'
-    console.log(error)
-    return
-  }
-  if(!data || data.length===0 || (data.length===1 && data[0].name.includes('empty'))){
-    liste.innerHTML = 'Aucun vocal. Sois le premier!'
-    return
-  }
-
-  liste.innerHTML = ''
+  const {data, error} = await supabase.storage.from(BUCKET).list('', {limit:50, sortBy:{column:'created_at', order:'desc'}})
+  if(error){ liste.innerHTML = 'Erreur: '+error.message; return }
+  if(!data || data.length==0 || (data.length==1 && data[0].name.includes('empty'))){ liste.innerHTML='Aucun vocal. Sois le premier!'; return }
+  liste.innerHTML=''
   for(const f of data){
     if(f.name.includes('empty')) continue
-    const {data: urlData} = supabase.storage.from('VOCAUX').getPublicUrl(f.name)
+    const {data: urlData} = supabase.storage.from(BUCKET).getPublicUrl(f.name)
     const div = document.createElement('div')
-    div.className = 'vocal-item'
-    div.innerHTML = `<b>🎙️ ${f.name}</b><br><audio controls src="${urlData.publicUrl}"></audio><br><small>${new Date(f.created_at).toLocaleString()}</small>`
+    div.className='vocal-item'
+    div.innerHTML=`<b>🎙️ ${f.name}</b><br><audio controls src="${urlData.publicUrl}"></audio><br><small>${new Date(f.created_at).toLocaleString()}</small>`
     liste.appendChild(div)
   }
 }
 chargerVocaux()
 </script>
 </body>
- </html>
+</html>
