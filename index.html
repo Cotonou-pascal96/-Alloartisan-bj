@@ -3,122 +3,115 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AlloArtisan BJ - Trouve un artisan en 2 min</title>
+<title>AlloArtisan BJ</title>
 <style>
-body{font-family:Arial, sans-serif;margin:0;background:#f8fafc}
-header{background:#16a34a;color:white;padding:15px;text-align:center}
-.hero{padding:20px;text-align:center;background:white}
-.services{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:15px}
-.service-card{background:white;padding:15px;border-radius:12px;text-align:center;box-shadow:0 2px 5px #0001}
-.service-card span{font-size:30px}
-#vocalBtn{position:fixed;bottom:20px;right:20px;background:#e11d48;color:white;padding:16px 22px;border-radius:50px;text-decoration:none;font-weight:bold;box-shadow:0 5px 15px #0004;z-index:9999;border:none;font-size:16px;cursor:pointer}
-#vocalModal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:10000;justify-content:center;align-items:center;padding:15px}
-#vocalBox{background:white;width:100%;max-width:400px;border-radius:15px;padding:20px}
-#recordBtn{background:#e11d48;color:white;width:100%;padding:15px;border:none;border-radius:30px;font-size:18px;font-weight:bold;cursor:pointer}
-#recordBtn.recording{background:#22c55e;animation:pulse 1s infinite}
-@keyframes pulse{0%{opacity:1}50%{opacity:.6}100%{opacity:1}}
-.vocal-item{border-left:4px solid #16a34a;padding:8px;background:#f0fdf4;border-radius:8px;margin-top:10px}
-audio{width:100%;margin-top:5px}
+body{font-family:Arial;margin:0;background:#f8fafc}
+header{background:#16a34a;color:white;padding:20px;text-align:center}
+.hero{background:white;padding:20px;text-align:center}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:15px}
+.card{background:white;padding:15px;border-radius:12px;text-align:center;box-shadow:0 2px 5px rgba(0,0,0,0.1)}
+#vocalBtn{position:fixed;bottom:25px;right:20px;background:#e11d48;color:white;padding:18px 24px;border-radius:50px;font-weight:bold;border:none;font-size:16px;box-shadow:0 5px 15px rgba(0,0,0,0.3);z-index:9999}
+#vocalModal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:10000;justify-content:center;align-items:center}
+#vocalBox{background:white;width:90%;max-width:380px;border-radius:15px;padding:20px;text-align:center}
+#recordBtn{background:#e11d48;color:white;width:100%;padding:16px;border:none;border-radius:30px;font-size:18px;font-weight:bold}
+#recordBtn.recording{background:#22c55e}
+.vocal-item{border-left:4px solid #16a34a;padding:10px;background:#f0fdf4;border-radius:8px;margin:10px 0;text-align:left}
+audio{width:100%}
 </style>
 </head>
 <body>
 <header>
 <h2>🔧 AlloArtisan BJ</h2>
-<p>Trouve un artisan fiable au Bénin en 2 minutes</p>
+<p>Trouve ton artisan en 2 min au Bénin</p>
 </header>
 
 <div class="hero">
-<h3>Quel artisan tu cherches ?</h3>
-<p>Clique et envoie un vocal direct</p>
+<h3>De quoi tu as besoin ?</h3>
+<p>Envoie un vocal, on t'envoie un artisan</p>
 </div>
 
-<div class="services">
-<div class="service-card"><span>💡</span><br>Électricien</div>
-<div class="service-card"><span>🚿</span><br>Plombier</div>
-<div class="service-card"><span>🧱</span><br>Maçon</div>
-<div class="service-card"><span>🎨</span><br>Peintre</div>
+<div class="grid">
+<div class="card">💡<br><b>Électricien</b></div>
+<div class="card">🚿<br><b>Plombier</b></div>
+<div class="card">🧱<br><b>Maçon</b></div>
+<div class="card">🎨<br><b>Peintre</b></div>
 </div>
 
 <div style="padding:15px">
 <div style="background:white;padding:15px;border-radius:12px">
-<h3>🎤 Derniers vocaux clients</h3>
+<h3>🎤 Vocaux des clients</h3>
 <div id="liste">Chargement...</div>
 </div>
 </div>
 
-<!-- BOUTON FLOTTANT -->
-<button id="vocalBtn">🎤 Envoyer un vocal</button>
+<button id="vocalBtn">🎤 Parler</button>
 
-<!-- MODAL VOCAL -->
 <div id="vocalModal">
 <div id="vocalBox">
-<h3 style="text-align:center">🎤 Envoie ton besoin</h3>
-<p id="status" style="text-align:center;font-weight:bold">Prêt</p>
+<h3>🎤 Ton besoin</h3>
+<p id="status">Prêt à enregistrer</p>
 <button id="recordBtn">🎤 Appuie pour parler</button>
 <br><br>
-<button onclick="document.getElementById('vocalModal').style.display='none'" style="width:100%;padding:10px;border:none;background:#eee;border-radius:20px">Fermer</button>
+<button onclick="document.getElementById('vocalModal').style.display='none'" style="width:100%;padding:10px;background:#eee;border:none;border-radius:20px">Fermer</button>
 </div>
 </div>
 
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
-const SUPABASE_URL = 'https://julsebvxtclkrxbebjhj.supabase.co'
-const SUPABASE_KEY = 'sb_publishable_yYGYMPrtpEk845HMjxAUgg_X46trA9W'
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+const supabase = createClient('https://julsebvxtclkrxbebjhj.supabase.co','sb_publishable_yYGYMPrtpEk845HMjxAUgg_X46trA9W')
 const BUCKET = 'Vocaux'
-
 const modal = document.getElementById('vocalModal')
-document.getElementById('vocalBtn').onclick = ()=> modal.style.display='flex'
+document.getElementById('vocalBtn').onclick = ()=>{ modal.style.display='flex' }
 modal.onclick = (e)=>{ if(e.target==modal) modal.style.display='none' }
 
-let mediaRecorder, chunks=[], isRecording=false
+let rec, chunks=[], recording=false
 const btn = document.getElementById('recordBtn')
 const status = document.getElementById('status')
 const liste = document.getElementById('liste')
 
 btn.onclick = async ()=>{
-  if(!isRecording){
-    const stream = await navigator.mediaDevices.getUserMedia({audio:true})
-    mediaRecorder = new MediaRecorder(stream)
-    chunks=[]
-    mediaRecorder.ondataavailable = e=>chunks.push(e.data)
-    mediaRecorder.onstop = uploadVocal
-    mediaRecorder.start()
-    isRecording=true
-    btn.textContent='⏹️ Arrête pour envoyer'
-    btn.classList.add('recording')
-    status.textContent='🔴 Enregistrement...'
-  }else{
-    mediaRecorder.stop()
-    isRecording=false
-    btn.textContent='🎤 Appuie pour parler'
-    btn.classList.remove('recording')
-    status.textContent='Envoi...'
-  }
+ if(!recording){
+   const stream = await navigator.mediaDevices.getUserMedia({audio:true})
+   rec = new MediaRecorder(stream)
+   chunks=[]
+   rec.ondataavailable = e=>chunks.push(e.data)
+   rec.onstop = upload
+   rec.start()
+   recording=true
+   btn.textContent='⏹️ Arrête pour envoyer'
+   btn.classList.add('recording')
+   status.textContent='🔴 Enregistrement...'
+ }else{
+   rec.stop()
+   recording=false
+   btn.textContent='🎤 Appuie pour parler'
+   btn.classList.remove('recording')
+   status.textContent='Envoi en cours...'
+ }
 }
 
-async function uploadVocal(){
-  const blob = new Blob(chunks,{type:'audio/webm'})
-  const nom = 'vocal-'+Date.now()+'.webm'
-  const {error} = await supabase.storage.from(BUCKET).upload(nom, blob)
-  if(error){ status.textContent='❌ '+error.message }
-  else{ status.textContent='✅ Vocal envoyé! Bravo!'; setTimeout(()=>{modal.style.display='none'; status.textContent='Prêt'},1500); chargerVocaux() }
+async function upload(){
+ const blob = new Blob(chunks,{type:'audio/webm'})
+ const name = 'vocal-'+Date.now()+'.webm'
+ const {error} = await supabase.storage.from(BUCKET).upload(name, blob)
+ if(error){ status.textContent='❌ '+error.message }
+ else{ status.textContent='✅ Envoyé!'; charger(); setTimeout(()=>{modal.style.display='none'; status.textContent='Prêt'},1200) }
 }
 
-async function chargerVocaux(){
-  const {data} = await supabase.storage.from(BUCKET).list('', {limit:20, sortBy:{column:'created_at', order:'desc'}})
-  if(!data || data.length==0){ liste.innerHTML='Aucun vocal. Sois le premier!'; return }
-  liste.innerHTML=''
-  for(const f of data){
-    if(f.name.includes('empty')) continue
-    const {data:urlData} = supabase.storage.from(BUCKET).getPublicUrl(f.name)
-    const div = document.createElement('div')
-    div.className='vocal-item'
-    div.innerHTML=`🎙️ ${f.name}<br><audio controls src="${urlData.publicUrl}"></audio>`
-    liste.appendChild(div)
-  }
+async function charger(){
+ const {data} = await supabase.storage.from(BUCKET).list('', {limit:20, sortBy:{column:'created_at', order:'desc'}})
+ if(!data || data.length==0){ liste.innerHTML='Aucun vocal'; return }
+ liste.innerHTML=''
+ for(const f of data){
+   if(f.name.includes('empty')) continue
+   const {data:u} = supabase.storage.from(BUCKET).getPublicUrl(f.name)
+   const d = document.createElement('div')
+   d.className='vocal-item'
+   d.innerHTML=`🎙️ ${f.name}<br><audio controls src="${u.publicUrl}"></audio>`
+   liste.appendChild(d)
+ }
 }
-chargerVocaux()
+charger()
 </script>
 </body>
 </html>
