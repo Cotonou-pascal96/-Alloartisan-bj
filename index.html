@@ -2,39 +2,59 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AlloArtisan Bj</title>
-<style>body{font-family:sans-serif;background:#f5f5f5;margin:0}header{background:#ff6a00;color:#fff;padding:20px;text-align:center} .box{background:#fff;margin:12px;padding:16px;border-radius:16px} button{background:#ff6a00;color:#fff;border:0;padding:14px;width:100%;border-radius:12px;font-weight:bold;font-size:16px} input{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;margin:6px 0}</style>
+<title>AlloArtisan Bj - Commande</title>
+<style>
+body{font-family:sans-serif;background:#f5f5f5;margin:0}
+header{background:#ff6a00;color:#fff;padding:22px;text-align:center}
+.box{background:#fff;margin:14px;padding:18px;border-radius:18px;box-shadow:0 4px 12px rgba(0,0,0,0.08)}
+button{background:#ff6a00;color:#fff;border:0;padding:15px;width:100%;border-radius:12px;font-weight:bold;font-size:17px}
+input,select{width:100%;padding:13px;border:1px solid #ddd;border-radius:12px;margin:7px 0;box-sizing:border-box}
+small{color:#777}
+</style>
 </head>
 <body>
-<header><h1>AlloArtisan Bj 🔧</h1><p>Artisans à Abomey-Calavi</p></header>
+<header>
+<h1>AlloArtisan Bj 🔧</h1>
+<p>Commande ton artisan à Abomey-Calavi</p>
+</header>
 
 <div class="box">
-<h3>Commander un Artisan</h3>
-<input id="nom" placeholder="Ton nom">
-<input id="tel" placeholder="Numéro MoMo (ex: 97...)">
-<input id="adresse" placeholder="Ton quartier à Calavi">
-<select id="service" style="width:100%;padding:12px;border-radius:10px">
-<option value="5000">Maçon - 5000 F</option>
-<option value="10000">Menuisier - 10000 F</option>
-<option value="7000">Plombier - 7000 F</option>
+<h3>Ta commande</h3>
+<input id="nom" placeholder="Ton nom complet">
+<input id="tel" placeholder="Numéro MoMo qui va payer (ex: 61... )" type="tel">
+<input id="adresse" placeholder="Quartier / Adresse à Calavi">
+<select id="service">
+<option value="5000">Maçon - 5000 F (client paie 5210 F)</option>
+<option value="7000">Plombier - 7000 F (client paie 7295 F)</option>
+<option value="10000">Menuisier - 10000 F (client paie 10417 F)</option>
 </select>
 <br><br>
-<button onclick="payer()">PAYER MAINTENANT</button>
-<p style="font-size:12px;text-align:center">Paiement sécurisé par FedaPay - MTN MoMo / Moov</p>
+<button onclick="payer()">PAYER AVEC MoMo / Moov</button>
+<small>Test sandbox : utilise 61 00 00 00 pour simuler un succès. Paiement sécurisé FedaPay.</small>
 </div>
 
 <script src="https://cdn.fedapay.com/checkout.js"></script>
 <script>
 function payer(){
  let montant = document.getElementById('service').value;
- let tel = document.getElementById('tel').value;
- if(tel.length < 8){ alert('Mets ton vrai numéro Boss'); return; }
+ let tel = document.getElementById('tel').value.replace(/\s/g,'');
+ if(tel.length < 8){ alert('Mets ton numéro MoMo Boss'); return; }
+ if(!document.getElementById('nom').value){ alert('Mets ton nom'); return; }
+
  FedaPay.init({
    public_key: 'pk_sandbox_OgVxU4c6rOvI7Sk6CPT2nvo4',
-   transaction: { amount: parseInt(montant), description: 'AlloArtisan - ' + document.getElementById('service').options[document.getElementById('service').selectedIndex].text },
-   customer: { firstname: document.getElementById('nom').value || 'Client', lastname: 'Calavi', email: 'client@alloartisan.bj', phone_number: { number: tel, country: 'BJ' } }
+   transaction: {
+     amount: parseInt(montant),
+     description: 'AlloArtisan - ' + document.getElementById('service').options[document.getElementById('service').selectedIndex].text
+   },
+   customer: {
+     firstname: document.getElementById('nom').value,
+     lastname: 'Calavi',
+     email: 'client@alloartisan.bj',
+     phone_number: { number: tel, country: 'BJ' }
+   }
  }).open();
 }
 </script>
 </body>
-  </html>
+</html>
