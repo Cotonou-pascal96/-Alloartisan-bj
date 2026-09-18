@@ -3,13 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AlloArtisan BJ</title>
+<title>AlloArtisan BJ - Trouve ton artisan</title>
 <style>
 body{font-family:Arial;margin:0;background:#f8fafc}
 header{background:#16a34a;color:white;padding:20px;text-align:center}
+header a{color:white;font-weight:bold;text-decoration:none;background:rgba(0,0,0,0.2);padding:5px 10px;border-radius:20px}
 .hero{background:white;padding:20px;text-align:center}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:15px}
-.card{background:white;padding:15px;border-radius:12px;text-align:center;box-shadow:0 2px 5px rgba(0,0,0,0.1)}
+.card{background:white;padding:12px;border-radius:12px;text-align:center;box-shadow:0 2px 5px rgba(0,0,0,0.1);cursor:pointer;border:2px solid transparent}
+.card:hover{border-color:#16a34a}
 #vocalBtn{position:fixed;bottom:25px;right:20px;background:#e11d48;color:white;padding:18px 24px;border-radius:50px;font-weight:bold;border:none;font-size:16px;box-shadow:0 5px 15px rgba(0,0,0,0.3);z-index:9999}
 #vocalModal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:10000;justify-content:center;align-items:center;padding:10px}
 #vocalBox{background:white;width:100%;max-width:400px;border-radius:15px;padding:20px;text-align:center}
@@ -18,31 +20,26 @@ input,select{width:100%;padding:12px;margin:6px 0;border:1px solid #ddd;border-r
 #recordBtn.recording{background:#22c55e}
 .vocal-item{border-left:4px solid #16a34a;padding:12px;background:#f0fdf4;border-radius:10px;margin:10px 0;text-align:left}
 audio{width:100%;margin-top:5px}
-.wa-btn{display:inline-block;background:#25D366;color:white;padding:8px 12px;border-radius:20px;text-decoration:none;font-size:14px;margin-top:6px;font-weight:bold}
+.wa-btn{display:block;background:#25D366;color:white;padding:10px 12px;border-radius:20px;text-decoration:none;font-size:15px;margin-top:8px;font-weight:bold;text-align:center}
+.admin-banner{background:#fef3c7;padding:10px;text-align:center;font-size:14px}
 </style>
 </head>
 <body>
-<header><h2>🔧 AlloArtisan BJ</h2><p>Trouve ton artisan en 2 min au Bénin</p></header>
-<div class="hero"><h3>De quoi tu as besoin ?</h3><p>Envoie un vocal, on t'envoie un artisan</p></div>
-<div class="grid">
-<div class="card">💡<br><b>Electricien</b></div>
-<div class="card">🚿<br><b>Plombier</b></div>
-<div class="card">🧱<br><b>Macon</b></div>
-<div class="card">🎨<br><b>Peintre</b></div>
-</div>
-<div style="padding:15px"><div style="background:white;padding:15px;border-radius:12px"><h3>🎤 Demandes des clients</h3><div id="liste">Chargement...</div></div></div>
+<header>
+<h2>🔧 AlloArtisan BJ</h2>
+<p>Tous les artisans du Bénin en 2 min</p>
+<a href="https://wa.me/2290194306313" target="_blank">📞 Boss Pascal: 01 94 30 63 13</a>
+</header>
+<div class="admin-banner">💡 Tu es artisan? Laisse ton vocal, les clients te trouveront !</div>
+<div class="hero"><h3>De quoi tu as besoin ?</h3><p>Clique sur ton métier ou envoie un vocal</p></div>
+<div class="grid" id="metierGrid"></div>
+<div style="padding:15px"><div style="background:white;padding:15px;border-radius:12px"><h3>🎤 Demandes des clients (clique pour écouter)</h3><div id="liste">Chargement...</div></div></div>
 <button id="vocalBtn">🎤 Parler</button>
 <div id="vocalModal"><div id="vocalBox">
 <h3>🎤 Ta demande</h3>
-<input id="nom" placeholder="Ton nom (ex: Pascal)">
-<input id="tel" placeholder="Ton numero WhatsApp">
-<select id="metier">
-<option value="Artisan">Choisis metier</option>
-<option value="Electricien">Electricien</option>
-<option value="Plombier">Plombier</option>
-<option value="Macon">Macon</option>
-<option value="Peintre">Peintre</option>
-</select>
+<input id="nom" placeholder="Ton nom (ex: Koffi)">
+<input id="tel" type="tel" placeholder="Ton numero WhatsApp (ex: 01 94...)">
+<select id="metierSelect"></select>
 <p id="status" style="font-weight:bold;color:#e11d48"></p>
 <button id="recordBtn">🎤 Appuie pour parler</button><br><br>
 <button onclick="document.getElementById('vocalModal').style.display='none'" style="width:100%;padding:10px;background:#eee;border:none;border-radius:20px">Fermer</button>
@@ -51,6 +48,19 @@ audio{width:100%;margin-top:5px}
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 const supabase = createClient('https://julsebvxtclkrxbebjhj.supabase.co','sb_publishable_yYGYMPrtpEk845HMjxAUgg_X46trA9W')
 const BUCKET = 'Vocaux'
+const METIERS = [
+  {icon:'💡', name:'Electricien'}, {icon:'🚿', name:'Plombier'}, {icon:'🧱', name:'Macon'},
+  {icon:'🎨', name:'Peintre'}, {icon:'🪚', name:'Menuisier'}, {icon:'✨', name:'Staffeur'},
+  {icon:'🧤', name:'Carreleur'}, {icon:'❄️', name:'Frigoriste'}, {icon:'🔧', name:'Soudeur'},
+  {icon:'🚪', name:'Vitrier'}, {icon:'🏠', name:'Etancheite'}, {icon:'🛋️', name:'Tapissier'}
+];
+const grid = document.getElementById('metierGrid')
+const select = document.getElementById('metierSelect')
+METIERS.forEach(m=>{
+  grid.innerHTML += `<div class="card" onclick="choisirMetier('${m.name}')">${m.icon}<br><b>${m.name}</b></div>`
+  select.innerHTML += `<option value="${m.name}">${m.name}</option>`
+})
+window.choisirMetier = (name)=>{ select.value = name; document.getElementById('vocalModal').style.display='flex' }
 const modal = document.getElementById('vocalModal')
 document.getElementById('vocalBtn').onclick = ()=>{ modal.style.display='flex' }
 modal.onclick = (e)=>{ if(e.target==modal) modal.style.display='none' }
@@ -58,9 +68,13 @@ let rec, chunks=[], recording=false
 const btn = document.getElementById('recordBtn')
 const status = document.getElementById('status')
 const liste = document.getElementById('liste')
-function clean(str){ return str.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]/g,'').substring(0,15) }
+function clean(str){ return str.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]/g,'').substring(0,12) }
+function cleanTel(str){ return str.replace(/[^0-9]/g,'').substring(0,15) }
+
 btn.onclick = async ()=>{
- if(!document.getElementById('nom').value || !document.getElementById('tel').value){ alert('Mets ton nom et numero'); return }
+ const nomVal = document.getElementById('nom').value
+ const telVal = document.getElementById('tel').value
+ if(!nomVal || !telVal){ alert('Mets ton nom et ton numero WhatsApp'); return }
  if(!recording){
    const stream = await navigator.mediaDevices.getUserMedia({audio:true})
    rec = new MediaRecorder(stream)
@@ -77,32 +91,39 @@ btn.onclick = async ()=>{
    recording=false
    btn.textContent='🎤 Appuie pour parler'
    btn.classList.remove('recording')
-   status.textContent='Envoi en cours...'
+   status.textContent='Envoi...'
  }
 }
 async function upload(){
  const blob = new Blob(chunks,{type:'audio/webm'})
  const nom = clean(document.getElementById('nom').value)
- const metier = clean(document.getElementById('metier').value)
- const fileName = `${metier}-${nom}-${Date.now()}.webm`
+ const tel = cleanTel(document.getElementById('tel').value)
+ const metier = clean(document.getElementById('metierSelect').value)
+ const fileName = `${metier}-${nom}-${tel}-${Date.now()}.webm`
  const {error} = await supabase.storage.from(BUCKET).upload(fileName, blob)
- if(error){ status.textContent='❌ '+error.message; console.log(error) }
+ if(error){ status.textContent='❌ '+error.message }
  else{ status.textContent='✅ Envoye !'; charger(); setTimeout(()=>{modal.style.display='none'; status.textContent=''},1500) }
 }
 async function charger(){
- const {data} = await supabase.storage.from(BUCKET).list('', {limit:30, sortBy:{column:'created_at', order:'desc'}})
- if(!data || data.length==0){ liste.innerHTML='Aucune demande'; return }
+ const {data} = await supabase.storage.from(BUCKET).list('', {limit:40, sortBy:{column:'created_at', order:'desc'}})
+ if(!data){ liste.innerHTML='Aucune demande'; return }
  liste.innerHTML=''
  for(const f of data){
    if(f.name.includes('empty') || f.name=='.emptyFolderPlaceholder') continue
    const {data:u} = supabase.storage.from(BUCKET).getPublicUrl(f.name)
+   let parts = f.name.replace('.webm','').split('-')
+   let telClient = parts.length >=3 ? parts[parts.length-2] : ''
+   let nomClient = parts.length >=2 ? parts[1] : 'Client'
+   let metierClient = parts[0]
+   let waLink = telClient ? `https://wa.me/229${telClient}?text=Bonjour%20${nomClient}%2C%20c%27est%20Pascal%20d%27AlloArtisan%20BJ.%20J%27ai%20vu%20ta%20demande%20de%20${metierClient}.` : 'https://wa.me/2290194306313'
+   let telAffiche = telClient ? `${telClient.substring(0,4)}...` : 'Voir numero'
    const d = document.createElement('div')
    d.className='vocal-item'
-   d.innerHTML=`<b>🔧 ${f.name}</b><br><audio controls src="${u.publicUrl}"></audio><br><a class="wa-btn" href="https://wa.me/2290197621383?text=Bonjour%20je%20viens%20pour%20${f.name}" target="_blank">💬 Repondre sur WhatsApp</a>`
+   d.innerHTML=`<b>🔧 ${f.name}</b><br><audio controls src="${u.publicUrl}"></audio><br><a class="wa-btn" href="${waLink}" target="_blank">📞 Appeler ${nomClient} sur WhatsApp (${telAffiche})</a>`
    liste.appendChild(d)
  }
 }
 charger()
 </script>
 </body>
-  </html>
+ </html>
