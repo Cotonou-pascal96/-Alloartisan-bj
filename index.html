@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AlloArtisan BJ V4 - Photo + Vocal</title>
+<title>AlloArtisan BJ V6 - Discussion via Plateforme</title>
 <style>
 body{font-family:Arial;margin:0;background:#f8fafc}
 header{background:#16a34a;color:white;padding:20px;text-align:center}
-header a{color:white;font-weight:bold;text-decoration:none;background:rgba(0,0,0,0.2);padding:5px 10px;border-radius:20px}
-.hero{background:white;padding:20px;text-align:center}
+header a{color:white;font-weight:bold;text-decoration:none;background:rgba(0,0,0,0.2);padding:6px 12px;border-radius:20px}
+.hero{background:white;padding:15px;text-align:center}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:15px}
 .card{background:white;padding:12px;border-radius:12px;text-align:center;box-shadow:0 2px 5px rgba(0,0,0,0.1);cursor:pointer;border:2px solid transparent}
 .card:hover{border-color:#16a34a}
@@ -18,23 +18,23 @@ header a{color:white;font-weight:bold;text-decoration:none;background:rgba(0,0,0
 input,select{width:100%;padding:12px;margin:6px 0;border:1px solid #ddd;border-radius:8px;box-sizing:border-box}
 #recordBtn{background:#e11d48;color:white;width:100%;padding:16px;border:none;border-radius:30px;font-size:18px;font-weight:bold;margin-top:10px}
 #recordBtn.recording{background:#22c55e}
-.vocal-item{border-left:4px solid #16a34a;padding:12px;background:#f0fdf4;border-radius:10px;margin:10px 0;text-align:left}
+.vocal-item{border-left:4px solid #16a34a;padding:12px;background:white;border-radius:12px;margin:12px 0;text-align:left;box-shadow:0 1px 3px rgba(0,0,0,0.1)}
 audio{width:100%;margin-top:5px}
-.wa-btn{display:block;background:#25D366;color:white;padding:10px 12px;border-radius:20px;text-decoration:none;font-size:15px;margin-top:8px;font-weight:bold;text-align:center}
-.admin-banner{background:#fef3c7;padding:10px;text-align:center;font-size:14px}
-img.preview{width:100%;border-radius:10px;margin-top:8px;max-height:200px;object-fit:cover}
+.admin-banner{background:#fef3c7;padding:10px;text-align:center;font-size:13px;font-weight:bold}
+img.preview{width:100%;border-radius:10px;margin-top:8px;max-height:220px;object-fit:cover}
+.chat-btn{background:#25D366;color:white;width:100%;padding:13px;border:none;border-radius:25px;font-weight:bold;margin-top:10px;font-size:15px;cursor:pointer}
 </style>
 </head>
 <body>
 <header>
-<h2>🔧 AlloArtisan BJ</h2>
-<p>Tous les artisans du Bénin en 2 min - Photo + Vocal</p>
+<h2>🔧 AlloArtisan BJ V6</h2>
+<p>Photo + Vocal + Discussion Directe</p>
 <a href="https://wa.me/2290194306313" target="_blank">📞 Boss Pascal: 01 94 30 63 13</a>
 </header>
-<div class="admin-banner">📸 Tu peux maintenant envoyer une PHOTO de ta panne + un vocal !</div>
-<div class="hero"><h3>De quoi tu as besoin ?</h3><p>Clique ton métier, ajoute photo si tu veux</p></div>
+<div class="admin-banner">💬 NOUVEAU : Les artisans peuvent discuter direct avec les clients via WhatsApp!</div>
+<div class="hero"><h3>De quoi tu as besoin?</h3><p>Envoie photo + vocal, un artisan te répond sur WhatsApp</p></div>
 <div class="grid" id="metierGrid"></div>
-<div style="padding:15px"><div style="background:white;padding:15px;border-radius:12px"><h3>🎤 Demandes clients avec photos</h3><div id="liste">Chargement...</div></div></div>
+<div style="padding:15px"><div style="background:#f1f5f9;padding:15px;border-radius:12px"><h3>📋 Demandes en cours</h3><div id="liste">Chargement...</div></div></div>
 <button id="vocalBtn">🎤 Parler</button>
 <div id="vocalModal"><div id="vocalBox">
 <h3>🎤 Ta demande</h3>
@@ -45,7 +45,7 @@ img.preview{width:100%;border-radius:10px;margin-top:8px;max-height:200px;object
 <input id="photo" type="file" accept="image/*">
 <img id="photoPreview" class="preview" style="display:none">
 <p id="status" style="font-weight:bold;color:#e11d48"></p>
-<button id="recordBtn">🎤 Appuie pour parler et envoyer</button><br><br>
+<button id="recordBtn">🎤 Appuie pour parler</button><br><br>
 <button onclick="document.getElementById('vocalModal').style.display='none'" style="width:100%;padding:10px;background:#eee;border:none;border-radius:20px">Fermer</button>
 </div></div>
 <script type="module">
@@ -87,7 +87,7 @@ function cleanTel(str){ return str.replace(/[^0-9]/g,'').substring(0,15) }
 btn.onclick = async ()=>{
  const nomVal = document.getElementById('nom').value
  const telVal = document.getElementById('tel').value
- if(!nomVal || !telVal){ alert('Mets ton nom et ton numero'); return }
+ if(!nomVal ||!telVal){ alert('Mets ton nom et ton numero'); return }
  if(!recording){
    const stream = await navigator.mediaDevices.getUserMedia({audio:true})
    rec = new MediaRecorder(stream)
@@ -121,8 +121,18 @@ async function uploadAll(){
  const fileName = `${metier}-${nom}-${tel}-${timestamp}.webm`
  const {error} = await supabase.storage.from(BUCKET).upload(fileName, blob)
  if(error){ status.textContent='❌ '+error.message }
- else{ status.textContent='✅ Envoye avec photo !'; charger(); setTimeout(()=>{modal.style.display='none'; status.textContent=''},1500) }
+ else{ status.textContent='✅ Envoyé! Discussion ouverte'; charger(); setTimeout(()=>{modal.style.display='none'; status.textContent=''},1500) }
 }
+
+// FONCTION OPTION 2 - DISCUSSION VIA PLATEFORME
+window.discuter = (nomClient, telClient, metier)=>{
+  let nomArtisan = prompt("Ton nom d'artisan? Ex: Moussa Electricien Godomey")
+  if(!nomArtisan) return
+  let message = `Bonjour ${nomClient}, c'est ${nomArtisan} via AlloArtisan BJ 🛠️\n\nJ'ai vu ta demande de ${metier} avec photo/vocal sur la plateforme.\nJe suis dispo maintenant à Cotonou.\n\nBoss Pascal (01 94 30 63 13) supervise cette conversation pour garantir le service.`
+  let url = `https://wa.me/229${telClient}?text=${encodeURIComponent(message)}`
+  window.open(url, '_blank')
+}
+
 async function charger(){
  const {data} = await supabase.storage.from(BUCKET).list('', {limit:50, sortBy:{column:'created_at', order:'desc'}})
  if(!data){ liste.innerHTML='Aucune demande'; return }
@@ -140,11 +150,11 @@ async function charger(){
    let vocal = files.find(x=>x.name.endsWith('.webm'))
    let photo = files.find(x=>x.name.endsWith('.jpg') || x.name.endsWith('.jpeg') || x.name.endsWith('.png'))
    let ref = vocal || photo
+   if(!ref) continue
    let parts = ref.name.replace('.webm','').replace('.jpg','').split('-')
-   let telClient = parts.length >=3 ? parts[parts.length-2] : ''
-   let nomClient = parts.length >=2 ? parts[1] : 'Client'
+   let telClient = parts.length >=3? parts[parts.length-2] : ''
+   let nomClient = parts.length >=2? parts[1] : 'Client'
    let metierClient = parts[0]
-   let waLink = telClient ? `https://wa.me/229${telClient}?text=Bonjour%20${nomClient}%2C%20c%27est%20Pascal%20d%27AlloArtisan.` : 'https://wa.me/2290194306313'
    const d = document.createElement('div')
    d.className='vocal-item'
    let html = `<b>🔧 ${metierClient} - ${nomClient} (${telClient})</b><br>`
@@ -156,7 +166,8 @@ async function charger(){
      const {data:u} = supabase.storage.from(BUCKET).getPublicUrl(vocal.name)
      html += `<audio controls src="${u.publicUrl}"></audio><br>`
    }
-   html += `<a class="wa-btn" href="${waLink}" target="_blank">📞 Appeler ${nomClient} sur WhatsApp</a>`
+   html += `<button class="chat-btn" onclick="discuter('${nomClient}','${telClient}','${metierClient}')">💬 Discuter avec ${nomClient} sur WhatsApp</button>`
+   html += `<div style="text-align:center;font-size:11px;margin-top:6px;color:#64748b">Conversation gérée par la plateforme • Boss Pascal 01 94 30 63 13</div>`
    d.innerHTML = html
    liste.appendChild(d)
  }
