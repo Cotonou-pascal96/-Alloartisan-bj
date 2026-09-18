@@ -2,59 +2,64 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AlloArtisan Bj</title>
+<title>Artisan Mobile- Bj - Calavi</title>
 <style>
-body{font-family:sans-serif;background:#f5f5f5;margin:0}
-header{background:#ff6a00;color:#fff;padding:22px;text-align:center}
-.box{background:#fff;margin:14px;padding:18px;border-radius:18px;box-shadow:0 4px 12px rgba(0,0,0,.08)}
-button{background:#ff6a00;color:#fff;border:0;padding:15px;width:100%;border-radius:12px;font-weight:bold;font-size:17px;margin-top:10px}
-input,select{width:100%;padding:13px;border:1px solid #ddd;border-radius:12px;margin:7px 0;box-sizing:border-box}
-.info{background:#f0fdf4;border:1px solid #bbf7d0;padding:12px;border-radius:12px;font-size:14px;margin-top:10px;text-align:center}
+body{font-family:sans-serif;background:#f0f2f5;margin:0}
+header{background:#0f172a;color:#fff;padding:24px;text-align:center}
+header h1{margin:0;font-size:26px} header span{color:#22c55e}
+.box{background:#fff;margin:16px;padding:20px;border-radius:18px;box-shadow:0 6px 16px rgba(0,0,0,.08)}
+button{background:#22c55e;color:#fff;border:0;padding:16px;width:100%;border-radius:14px;font-weight:bold;font-size:17px;margin-top:10px}
+input,select{width:100%;padding:14px;border:1px solid #ddd;border-radius:12px;margin:8px 0;box-sizing:border-box;font-size:15px}
+.info{background:#f0fdf4;border:1px solid #bbf7d0;padding:12px;border-radius:12px;font-size:14px;margin-top:10px;text-align:center;color:#166534}
+.badge{background:#22c55e;color:#fff;padding:4px 10px;border-radius:20px;font-size:11px}
 </style>
 </head>
 <body>
-<header><h1>AlloArtisan Bj 🔧</h1><p>Paiement sécurisé de votre artisan</p></header>
+<header>
+<h1>Artisan Mobile- <span>Bj</span> 📱🔧</h1>
+<p>L'artisan arrive chez vous à Abomey-Calavi en 20 min - <span class="badge">100% Local</span></p>
+</header>
 
 <div class="box">
-<h3>Payer mon artisan</h3>
-<input id="nom" placeholder="Votre nom">
-<input id="tel" placeholder="Votre numéro MoMo" type="tel">
+<h3>📋 Commander un artisan</h3>
+<input id="nom" placeholder="Votre nom complet">
+<input id="tel" placeholder="Votre numéro MoMo (qui va payer)" type="tel">
+<input id="adresse" placeholder="Quartier à Calavi (ex: Godomey, Togba...)">
+
 <select id="metier">
 <option value="">-- Quel artisan ? --</option>
 <option>Maçon</option><option>Menuisier</option><option>Plombier</option>
 <option>Électricien</option><option>Peintre</option><option>Soudeur</option>
-<option>Carreleur</option><option>Charpentier</option><option>Clim / Frigoriste</option>
+<option>Carreleur</option><option>Charpentier</option><option>Clim / Frigo</option>
 <option>Mécanicien Moto</option><option>Mécanicien Auto</option>
-<option>Tailleur</option><option>Coiffeur</option><option>Photographe</option>
-<option>Chauffeur</option><option>Jardinier</option><option>Déménageur</option>
-<option>Vide Fosse</option><option>Électroménager</option><option>Autre</option>
+<option>Tailleur</option><option>Coiffeur</option><option>Jardinier</option>
+<option>Déménageur</option><option>Vide Fosse</option><option>Autre</option>
 </select>
+
 <input id="montant" type="number" placeholder="Montant convenu (ex: 15000)" oninput="calculer()">
-
-<div class="info" id="calcul">Entrez le montant convenu avec l'artisan</div>
-
-<button onclick="payer()">PAYER MAINTENANT</button>
-<small style="display:block;text-align:center;margin-top:8px">Paiement 100% sécurisé par FedaPay</small>
+<div class="info" id="calcul">Entrez le montant</div>
+<button onclick="payer()">💳 PAYER ET CONFIRMER</button>
+<p style="font-size:11px;text-align:center;color:#666;margin-top:10px">Paiement sécurisé - Artisan Mobile- Bj</p>
 </div>
 
 <script src="https://cdn.fedapay.com/checkout.js"></script>
 <script>
 function calculer(){
- let m = parseInt(document.getElementById('montant').value) || 0;
- if(m < 500){ document.getElementById('calcul').innerHTML = "Montant minimum 500F"; return; }
- // ICI ON CACHE LA COMMISSION - CLIENT VOIT SEULEMENT LE TOTAL
- document.getElementById('calcul').innerHTML = `Montant total à payer : <b>${m} F</b> ✅<br><span style="font-size:12px;color:#666">Frais AlloArtisan inclus</span>`;
+ let m = parseInt(document.getElementById('montant').value)||0;
+ if(m<1000){document.getElementById('calcul').innerHTML="Minimum 1000F";return;}
+ document.getElementById('calcul').innerHTML=`Total à payer : <b>${m} FCFA</b> ✅`;
 }
 function payer(){
- let montant = parseInt(document.getElementById('montant').value);
- let metier = document.getElementById('metier').value;
- let tel = document.getElementById('tel').value.replace(/\s/g,'');
- let nom = document.getElementById('nom').value;
- if(!montant || !metier || tel.length < 8 || !nom){ alert('Remplis tout'); return; }
+ let montant=parseInt(document.getElementById('montant').value);
+ let metier=document.getElementById('metier').value;
+ let tel=document.getElementById('tel').value.replace(/\s/g,'');
+ let nom=document.getElementById('nom').value;
+ let adresse=document.getElementById('adresse').value;
+ if(!montant||!metier||tel.length<8||!nom||!adresse){alert('Remplis tout Boss');return;}
  FedaPay.init({
    public_key: 'pk_sandbox_OgVxU4c6rOvI7Sk6CPT2nvo4',
-   transaction: { amount: montant, description: `AlloArtisan - ${metier} - ${nom}` },
-   customer: { firstname: nom, lastname: metier, email: 'client@alloartisan.bj', phone_number: { number: tel, country: 'BJ' } }
+   transaction:{amount:montant,description:`Artisan Mobile- Bj - ${metier} - ${nom} - ${adresse}`},
+   customer:{firstname:nom,lastname:metier,email:'contact@artisanmobile-bj.bj',phone_number:{number:tel,country:'BJ'}}
  }).open();
 }
 </script>
