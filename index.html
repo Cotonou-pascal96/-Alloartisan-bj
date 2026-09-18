@@ -2,59 +2,76 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AlloArtisan Bj - Commande</title>
+<title>AlloArtisan Bj - Commission Auto</title>
 <style>
 body{font-family:sans-serif;background:#f5f5f5;margin:0}
 header{background:#ff6a00;color:#fff;padding:22px;text-align:center}
-.box{background:#fff;margin:14px;padding:18px;border-radius:18px;box-shadow:0 4px 12px rgba(0,0,0,0.08)}
-button{background:#ff6a00;color:#fff;border:0;padding:15px;width:100%;border-radius:12px;font-weight:bold;font-size:17px}
+.box{background:#fff;margin:14px;padding:18px;border-radius:18px;box-shadow:0 4px 12px rgba(0,0,0,.08)}
+button{background:#ff6a00;color:#fff;border:0;padding:15px;width:100%;border-radius:12px;font-weight:bold;font-size:17px;margin-top:10px}
 input,select{width:100%;padding:13px;border:1px solid #ddd;border-radius:12px;margin:7px 0;box-sizing:border-box}
-small{color:#777}
+.info{background:#fff7ed;border:1px dashed #ff6a00;padding:12px;border-radius:12px;font-size:14px;margin-top:10px}
 </style>
 </head>
 <body>
-<header>
-<h1>AlloArtisan Bj 🔧</h1>
-<p>Commande ton artisan à Abomey-Calavi</p>
-</header>
+<header><h1>AlloArtisan Bj 🔧</h1><p>Paiement sécurisé - Commission 10% auto</p></header>
 
 <div class="box">
-<h3>Ta commande</h3>
-<input id="nom" placeholder="Ton nom complet">
-<input id="tel" placeholder="Numéro MoMo qui va payer (ex: 61... )" type="tel">
-<input id="adresse" placeholder="Quartier / Adresse à Calavi">
-<select id="service">
-<option value="5000">Maçon - 5000 F (client paie 5210 F)</option>
-<option value="7000">Plombier - 7000 F (client paie 7295 F)</option>
-<option value="10000">Menuisier - 10000 F (client paie 10417 F)</option>
+<h3>Payer mon Artisan</h3>
+<input id="nom" placeholder="Nom du client">
+<input id="tel" placeholder="Numéro MoMo du client (qui paie)" type="tel">
+
+<select id="metier">
+<option value="">-- Métier de l'artisan --</option>
+<option>Maçon</option><option>Menuisier</option><option>Plombier</option>
+<option>Électricien</option><option>Peintre</option><option>Soudeur Métallique</option>
+<option>Carreleur</option><option>Charpentier</option><option>Étancheur</option>
+<option>Climatisation / Frigoriste</option><option>Électroménager / Réparateur</option>
+<option>Mécanicien Moto</option><option>Mécanicien Auto</option><option>Tôlier Peintre</option>
+<option>Tailleur / Couturier</option><option>Coiffeur / Coiffeuse</option>
+<option>Esthéticienne</option><option>Cordonnier</option><option>Jardinier</option>
+<option>Déménageur</option><option>Vide Fosse</option><option>Photographe / Vidéaste</option>
+<option>Chauffeur</option><option>Sécurité / Gardien</option>
 </select>
-<br><br>
-<button onclick="payer()">PAYER AVEC MoMo / Moov</button>
-<small>Test sandbox : utilise 61 00 00 00 pour simuler un succès. Paiement sécurisé FedaPay.</small>
+
+<input id="montant" type="number" placeholder="Montant convenu avec l'artisan (ex: 20000)" oninput="calculer()">
+
+<div class="info" id="calcul">
+Entre le montant pour voir la répartition...
+</div>
+
+<button onclick="payer()">💳 PAYER L'ARTISAN MAINTENANT</button>
+<small>Paiement FedaPay. Le client paie, AlloArtisan touche 10% auto.</small>
 </div>
 
 <script src="https://cdn.fedapay.com/checkout.js"></script>
 <script>
+function calculer(){
+ let m = parseInt(document.getElementById('montant').value) || 0;
+ if(m < 1000){ document.getElementById('calcul').innerHTML = "Montant minimum 1000F"; return; }
+ let commission = Math.round(m * 0.10);
+ let pourArtisan = m - commission;
+ document.getElementById('calcul').innerHTML = `
+  <b>Montant total payé par client: ${m} F</b><br>
+  ✅ Ta commission AlloArtisan (10%): <b>${commission} F</b> (reste sur ton compte)<br>
+  👷 Pour l'artisan (90%): <b>${pourArtisan} F</b> (à transférer à l'artisan)
+ `;
+}
 function payer(){
- let montant = document.getElementById('service').value;
+ let montant = parseInt(document.getElementById('montant').value);
+ let metier = document.getElementById('metier').value;
  let tel = document.getElementById('tel').value.replace(/\s/g,'');
- if(tel.length < 8){ alert('Mets ton numéro MoMo Boss'); return; }
- if(!document.getElementById('nom').value){ alert('Mets ton nom'); return; }
+ let nom = document.getElementById('nom').value;
+ if(!montant || !metier || tel.length < 8 || !nom){ alert('Remplis tout Boss'); return; }
 
  FedaPay.init({
    public_key: 'pk_sandbox_OgVxU4c6rOvI7Sk6CPT2nvo4',
-   transaction: {
-     amount: parseInt(montant),
-     description: 'AlloArtisan - ' + document.getElementById('service').options[document.getElementById('service').selectedIndex].text
+   transaction: { 
+     amount: montant, 
+     description: `AlloArtisan - ${metier} - Client: ${nom} - Commission 10% incluse` 
    },
-   customer: {
-     firstname: document.getElementById('nom').value,
-     lastname: 'Calavi',
-     email: 'client@alloartisan.bj',
-     phone_number: { number: tel, country: 'BJ' }
-   }
+   customer: { firstname: nom, lastname: metier, email: 'client@alloartisan.bj', phone_number: { number: tel, country: 'BJ' } }
  }).open();
 }
 </script>
 </body>
-</html>
+ </html>
