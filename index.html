@@ -3,208 +3,58 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AlloArtisan BJ V8 - Paiement Mobile Money</title>
+<title>AlloArtisan Bj - Artisans du Bénin</title>
 <style>
-body{font-family:Arial;margin:0;background:#f8fafc;padding-bottom:100px}
-header{background:#16a34a;color:white;padding:18px;text-align:center;position:sticky;top:0;z-index:100}
-header a{color:white;font-weight:bold;text-decoration:none;background:rgba(0,0,0,0.2);padding:6px 12px;border-radius:20px;font-size:13px}
-.hero{background:white;padding:12px;text-align:center;border-bottom:2px solid #e2e8f0}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:15px}
-.card{background:white;padding:14px;border-radius:12px;text-align:center;box-shadow:0 2px 5px rgba(0,0,0,0.1);cursor:pointer;border:2px solid transparent}
-.card:hover{border-color:#16a34a}
-#vocalBtn{position:fixed;bottom:25px;right:20px;background:#e11d48;color:white;padding:18px 24px;border-radius:50px;font-weight:bold;border:none;font-size:16px;box-shadow:0 5px 15px rgba(0,0,0,0.3);z-index:9999}
-#vocalModal,#payModal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);z-index:10000;justify-content:center;align-items:center;padding:10px}
-.box{background:white;width:100%;max-width:420px;border-radius:15px;padding:20px;text-align:center;max-height:90vh;overflow-y:auto}
-input,select{width:100%;padding:12px;margin:6px 0;border:1px solid #ddd;border-radius:8px;box-sizing:border-box}
-#recordBtn{background:#e11d48;color:white;width:100%;padding:16px;border:none;border-radius:30px;font-size:18px;font-weight:bold;margin-top:10px}
-.vocal-item{border-left:4px solid #16a34a;padding:12px;background:white;border-radius:12px;margin:12px 0;text-align:left;box-shadow:0 1px 3px rgba(0,0,0,0.1)}
-audio{width:100%;margin-top:5px}
-img.preview{width:100%;border-radius:10px;margin-top:8px;max-height:220px;object-fit:cover}
-.btn{width:100%;padding:13px;border:none;border-radius:25px;font-weight:bold;margin-top:8px;font-size:15px;cursor:pointer}
-.btn-green{background:#25D366;color:white}
-.btn-yellow{background:#facc15;color:black}
-.btn-blue{background:#2563eb;color:white}
-.commission{background:#fef9c3;padding:8px;border-radius:8px;font-size:12px;margin:8px 0;border:1px dashed #eab308}
-.pay-option{border:2px solid #e2e8f0;border-radius:10px;padding:12px;margin:8px 0;cursor:pointer;text-align:left}
-.pay-option:hover{border-color:#16a34a;background:#f0fdf4}
-.pay-option.selected{border-color:#16a34a;background:#dcfce7}
+body{font-family:sans-serif;margin:0;background:#fff8f0}
+header{background:#ff6a00;color:white;padding:20px;text-align:center}
+.card{background:white;margin:15px;padding:15px;border-radius:15px;box-shadow:0 2px 10px #ddd}
+button{background:#ff6a00;color:white;border:none;padding:15px 25px;border-radius:30px;width:100%;font-size:18px;font-weight:bold}
+input{width:100%;padding:12px;margin:8px 0;border-radius:10px;border:1px solid #ccc;box-sizing:border-box}
 </style>
 </head>
 <body>
 <header>
-<h2>🔧 AlloArtisan BJ V8</h2>
-<p>16 Métiers • Paiement MTN/Moov • Commission 10%</p>
-<a href="https://wa.me/2290194306313" target="_blank">📞 Boss Pascal: 01 94 30 63 13</a>
+<h1>🛠️ AlloArtisan Bj</h1>
+<p>Trouve un artisan près de toi à Abomey-Calavi</p>
 </header>
-<div class="hero">
-<h3 style="margin:0">💰 Devis Gratuit, Paiement Sécurisé</h3>
-<p style="margin:5px 0;font-size:13px">MTN MoMo • Moov Money • Commission plateforme 10%</p>
-<div style="background:#16a34a;color:white;padding:6px;border-radius:20px;font-size:12px;display:inline-block">Exemple: Client paie 5000F → Toi 500F → Artisan 4500F</div>
-</div>
-<div class="grid" id="metierGrid"></div>
-<div style="padding:15px">
-<div style="background:#f1f5f9;padding:15px;border-radius:12px"><h3>📋 Demandes + Paiement</h3><div id="liste">Chargement...</div></div>
-<div style="margin-top:15px;background:#fffbeb;padding:15px;border-radius:12px;border:2px solid #facc15">
-<h3 style="margin:0">💵 Tes Gains Boss Pascal</h3>
-<p id="gains" style="font-size:22px;font-weight:bold;color:#16a34a;margin:5px 0">0 F</p>
-<p style="font-size:11px;color:#64748b;margin:0">Commission 10% automatique - Test mode</p>
-</div>
-</div>
-<button id="vocalBtn">🎤 Parler</button>
 
-<!-- Modal Vocal -->
-<div id="vocalModal"><div class="box">
-<h3>🎤 Ta demande</h3>
-<input id="nom" placeholder="Ton nom"><input id="tel" type="tel" placeholder="Ton numero WhatsApp">
-<select id="metierSelect"></select>
-<label style="text-align:left;display:block;margin-top:10px;font-weight:bold">📸 Photo panne:</label>
-<input id="photo" type="file" accept="image/*"><img id="photoPreview" class="preview" style="display:none">
-<p id="status" style="font-weight:bold;color:#e11d48"></p>
-<button id="recordBtn">🎤 Appuie pour parler</button><br><br>
-<button onclick="document.getElementById('vocalModal').style.display='none'" class="btn" style="background:#eee">Fermer</button>
-</div></div>
-
-<!-- Modal Paiement -->
-<div id="payModal"><div class="box">
-<h3>💰 Payer l'Artisan - Sécurisé</h3>
-<p id="payDetails" style="font-size:14px"></p>
-<div class="commission">
-💡 <b>Transparence Totale:</b><br>
-Total Client: <span id="totalClient">5000</span> F<br>
-Commission AlloArtisan (10%): <span id="comMission">500</span> F<br>
-Artisan reçoit: <span id="netArtisan">4500</span> F
+<div class="card">
+<h2>Maçon - 5.000 FCFA</h2>
+<p>Intervention rapide à Abomey-Calavi</p>
+<label>Ton numéro MoMo / Moov</label>
+<input id="phone" placeholder="Ex: 97 00 00 00" type="tel">
+<label>Ton adresse</label>
+<input id="adresse" placeholder="Ex: Zogbadjè, Calavi">
+<button onclick="payer(5000)">Payer 5.000F avec MoMo</button>
 </div>
-<div style="text-align:left">
-<div class="pay-option" onclick="selectPay('mtn')" id="opt-mtn"><b>📱 MTN MoMo</b><br><span style="font-size:12px">*880*... Paiement direct Boss Pascal</span></div>
-<div class="pay-option" onclick="selectPay('moov')" id="opt-moov"><b>📱 Moov Money</b><br><span style="font-size:12px">*855*... Paiement direct</span></div>
-<div class="pay-option" onclick="selectPay('cash')" id="opt-cash"><b>💵 Cash après service</b><br><span style="font-size:12px">Artisan collecte + te reverse 10%</span></div>
-</div>
-<input id="montant" type="number" value="5000" oninput="calculCommission()" placeholder="Montant total">
-<button class="btn btn-blue" onclick="payer()">✅ Confirmer Paiement</button>
-<button onclick="document.getElementById('payModal').style.display='none'" class="btn" style="background:#eee">Annuler</button>
-<p style="font-size:10px;color:#64748b;margin-top:10px">Paiement géré par Boss Pascal 01 94 30 63 13 - Reçu automatique</p>
-</div></div>
 
-<script type="module">
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
-const supabase = createClient('https://julsebvxtclkrxbebjhj.supabase.co','sb_publishable_yYGYMPrtpEk845HMjxAUgg_X46trA9W')
-const BUCKET = 'Vocaux'
-const METIERS = [
-  {icon:'💡', name:'Electricien'}, {icon:'🚿', name:'Plombier'}, {icon:'🧱', name:'Macon'},
-  {icon:'🎨', name:'Peintre'}, {icon:'🪚', name:'Menuisier'}, {icon:'✨', name:'Staffeur'},
-  {icon:'🧤', name:'Carreleur'}, {icon:'❄️', name:'Frigoriste'}, {icon:'🔧', name:'Soudeur'},
-  {icon:'🚪', name:'Vitrier'}, {icon:'🏠', name:'Etancheite'}, {icon:'🛋️', name:'Tapissier'},
-  {icon:'🧹', name:'Nettoyage'}, {icon:'🌳', name:'Jardinier'}, {icon:'🚚', name:'Deménageur'}, {icon:'🚗', name:'Mecanicien'}
-];
-let selectedPay='mtn', currentPayInfo=null
-const grid = document.getElementById('metierGrid')
-const select = document.getElementById('metierSelect')
-METIERS.forEach(m=>{
-  grid.innerHTML += `<div class="card" onclick="choisirMetier('${m.name}')">${m.icon}<br><b>${m.name}</b></div>`
-  select.innerHTML += `<option value="${m.name}">${m.name}</option>`
-})
-window.choisirMetier = (name)=>{ select.value = name; document.getElementById('vocalModal').style.display='flex' }
-document.getElementById('vocalBtn').onclick = ()=>{ document.getElementById('vocalModal').style.display='flex' }
-document.getElementById('vocalModal').onclick = (e)=>{ if(e.target==document.getElementById('vocalModal')) document.getElementById('vocalModal').style.display='none' }
-document.getElementById('payModal').onclick = (e)=>{ if(e.target==document.getElementById('payModal')) document.getElementById('payModal').style.display='none' }
-document.getElementById('photo').onchange = (e)=>{
-  const file = e.target.files[0]
-  if(file){ const url = URL.createObjectURL(file); const img = document.getElementById('photoPreview'); img.src = url; img.style.display='block' }
+<div class="card">
+<h2>Menuisier - 10.000 FCFA</h2>
+<p>Fabrication et réparation</p>
+<button onclick="payer(10000)">Payer 10.000F avec MoMo</button>
+</div>
+
+<script src="https://cdn.fedapay.com/checkout.js"></script>
+<script>
+function payer(montant){
+  let tel = document.getElementById('phone').value;
+  if(!tel){ alert('Mets ton numéro MoMo d\'abord Boss'); return; }
+  
+  FedaPay.init({
+    public_key: 'pk_sandbox_OgVxU4c6rOvI7Sk6CPT2nvo4',
+    transaction: {
+      amount: montant,
+      description: 'Commande AlloArtisan - ' + document.getElementById('adresse').value
+    },
+    customer: {
+      firstname: 'Client',
+      lastname: 'AlloArtisan',
+      email: 'client@alloartisan.bj',
+      phone_number: { number: tel, country: 'BJ' }
+    }
+  }).open();
 }
-let rec, chunks=[], recording=false
-const btn = document.getElementById('recordBtn')
-const status = document.getElementById('status')
-const liste = document.getElementById('liste')
-function clean(str){ return str.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]/g,'').substring(0,12) }
-function cleanTel(str){ return str.replace(/[^0-9]/g,'').substring(0,15) }
-btn.onclick = async ()=>{
- const nomVal = document.getElementById('nom').value
- const telVal = document.getElementById('tel').value
- if(!nomVal ||!telVal){ alert('Mets ton nom et ton numero'); return }
- if(!recording){
-   const stream = await navigator.mediaDevices.getUserMedia({audio:true})
-   rec = new MediaRecorder(stream); chunks=[]; rec.ondataavailable = e=>chunks.push(e.data); rec.onstop = uploadAll; rec.start()
-   recording=true; btn.textContent='⏹️ Arrete pour envoyer'; btn.style.background='#22c55e'; status.textContent='🔴 Enregistrement...'
- }else{
-   rec.stop(); recording=false; btn.textContent='🎤 Appuie pour parler'; btn.style.background='#e11d48'; status.textContent='Envoi...'
- }
-}
-async function uploadAll(){
- const blob = new Blob(chunks,{type:'audio/webm'})
- const nom = clean(document.getElementById('nom').value)
- const tel = cleanTel(document.getElementById('tel').value)
- const metier = clean(document.getElementById('metierSelect').value)
- const timestamp = Date.now()
- const photoFile = document.getElementById('photo').files[0]
- if(photoFile){ const photoName = `${metier}-${nom}-${tel}-${timestamp}.jpg`; await supabase.storage.from(BUCKET).upload(photoName, photoFile) }
- const fileName = `${metier}-${nom}-${tel}-${timestamp}.webm`
- const {error} = await supabase.storage.from(BUCKET).upload(fileName, blob)
- if(error){ status.textContent='❌ '+error.message }
- else{ status.textContent='✅ Envoyé!'; charger(); setTimeout(()=>{document.getElementById('vocalModal').style.display='none'; status.textContent=''},1500) }
-}
-window.selectPay = (type)=>{
-  selectedPay=type
-  document.querySelectorAll('.pay-option').forEach(el=>el.classList.remove('selected'))
-  document.getElementById('opt-'+type).classList.add('selected')
-}
-window.calculCommission = ()=>{
-  let total = parseInt(document.getElementById('montant').value)||0
-  let comm = Math.round(total*0.10)
-  document.getElementById('totalClient').textContent=total
-  document.getElementById('comMission').textContent=comm
-  document.getElementById('netArtisan').textContent=total-comm
-}
-window.ouvrirPaiement = (nomClient, metier)=>{
-  currentPayInfo={nom:nomClient, metier:metier}
-  document.getElementById('payDetails').innerHTML=`Paiement pour <b>${metier}</b> de <b>${nomClient}</b>`
-  document.getElementById('payModal').style.display='flex'
-  selectPay('mtn'); calculCommission()
-}
-window.payer = ()=>{
-  let total = parseInt(document.getElementById('montant').value)||0
-  let comm = Math.round(total*0.10)
-  let gainsActuels = parseInt(localStorage.getItem('gainsPascal')||0)
-  gainsActuels+=comm
-  localStorage.setItem('gainsPascal', gainsActuels)
-  document.getElementById('gains').textContent=gainsActuels+' F'
-  let msg = `💰 Paiement AlloArtisan V8\nClient: ${currentPayInfo.nom}\nMetier: ${currentPayInfo.metier}\nTotal: ${total}F\nCommission: ${comm}F via ${selectedPay.toUpperCase()}\nNet artisan: ${total-comm}F\n\nBoss Pascal 01 94 30 63 13`
-  let url = `https://wa.me/2290194306313?text=${encodeURIComponent(msg)}`
-  window.open(url,'_blank')
-  document.getElementById('payModal').style.display='none'
-  alert(`✅ Paiement enregistré! Commission ${comm}F ajoutée à tes gains.`)
-}
-window.discuter = (nomClient, telClient, metier)=>{
-  let nomArtisan = prompt("Ton nom d'artisan?")
-  if(!nomArtisan) return
-  let message = `Bonjour ${nomClient}, c'est ${nomArtisan} via AlloArtisan BJ V8 - Paiement Mobile Money disponible.`
-  let url = `https://wa.me/229${telClient}?text=${encodeURIComponent(message)}`
-  window.open(url, '_blank')
-}
-async function charger(){
- document.getElementById('gains').textContent=(localStorage.getItem('gainsPascal')||0)+' F'
- const {data} = await supabase.storage.from(BUCKET).list('', {limit:50, sortBy:{column:'created_at', order:'desc'}})
- if(!data){ liste.innerHTML='Aucune demande'; return }
- liste.innerHTML=''; let grouped = {}
- for(const f of data){
-   if(f.name.includes('empty') || f.name=='.emptyFolderPlaceholder') continue
-   let base = f.name.split('.')[0]; let ts = base.split('-').pop()
-   if(!grouped[ts]) grouped[ts] = []; grouped[ts].push(f)
- }
- for(const ts in grouped){
-   const files = grouped[ts]; let vocal = files.find(x=>x.name.endsWith('.webm')); let photo = files.find(x=>x.name.endsWith('.jpg')||x.name.endsWith('.jpeg')||x.name.endsWith('.png'))
-   let ref = vocal || photo; if(!ref) continue
-   let parts = ref.name.replace('.webm','').replace('.jpg','').split('-')
-   let telClient = parts.length >=3? parts[parts.length-2] : ''; let nomClient = parts.length >=2? parts[1] : 'Client'; let metierClient = parts[0]
-   const d = document.createElement('div'); d.className='vocal-item'
-   let html = `<b>🔧 ${metierClient} - ${nomClient}</b><br>`
-   if(photo){ const {data:u} = supabase.storage.from(BUCKET).getPublicUrl(photo.name); html += `<img src="${u.publicUrl}" class="preview"><br>` }
-   if(vocal){ const {data:u} = supabase.storage.from(BUCKET).getPublicUrl(vocal.name); html += `<audio controls src="${u.publicUrl}"></audio><br>` }
-   html += `<button class="btn btn-green" onclick="discuter('${nomClient}','${telClient}','${metierClient}')">💬 Discuter</button>`
-   html += `<button class="btn btn-yellow" onclick="ouvrirPaiement('${nomClient}','${metierClient}')">💰 Payer / Commission 10%</button>`
-   d.innerHTML = html; liste.appendChild(d)
- }
-}
-charger()
 </script>
+
 </body>
-  </html>
+</html>
